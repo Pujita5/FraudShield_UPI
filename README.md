@@ -228,35 +228,4 @@ This project is suitable for:
 
 This project is for academic and educational purposes only.
 
-```
 
----
-
-## 🧠 Why this README works (important)
-
-- ✔ Sounds **professional**
-- ✔ Explains **baseline vs proposed**
-- ✔ Shows **research depth**
-- ✔ Safe for **viva & interviews**
-- ✔ No over-claiming
-- ✔ Clean GitHub presentation
-
----
-
-## 🔥 OPTIONAL (HIGHLY RECOMMENDED)
-
-Add these files later for even more impact:
-- `requirements.txt`
-- `screenshots/` folder
-- `architecture_diagram.png`
-
----
-
-If you want next, I can:
-- Write `requirements.txt`
-- Improve README for **IEEE paper style**
-- Add **badges** (Python, Flask, ML)
-- Review your GitHub repo before publishing
-
-Just tell me 👍
-```
