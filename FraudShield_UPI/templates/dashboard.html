@@ -1,8 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>FraudShield UPI | Dashboard</title>
-    <link rel="stylesheet" href="/static/dashboard.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   
 </head>
 
 <body>
@@ -10,25 +16,24 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <h2>FraudShield</h2>
-    <a href="#">Dashboard</a>
+    <a href="/dashboard" class="active">Dashboard</a>
     <a href="/transactions">Transactions</a>
     <a href="/fraud-alerts">Fraud Alerts</a>
     <a href="/logout">Logout</a>
 </div>
 
-<!-- Main Content -->
+<!-- Main -->
 <div class="main">
 
-    <!-- Top Bar -->
+    <!-- Topbar -->
     <div class="topbar">
         <input type="text" placeholder="Search transactions...">
-        <div>👤 User</div>
+        <div class="user-badge">👤 User</div>
     </div>
 
     <!-- Analyze Transaction -->
     <div class="panel">
         <h3>Analyze Transaction</h3>
-
         <form method="POST" action="/analyze" class="analyze-form">
             <input type="number" name="amount" placeholder="Transaction Amount" required>
             <input type="number" name="frequency" placeholder="Transaction Frequency" required>
@@ -74,16 +79,14 @@
     </div>
 
     <!-- Analytics -->
-    <div class="panel analytics-panel">
+    <div class="panel">
         <h3>Fraud Analytics</h3>
-
         <div class="charts-grid">
-            <div class="chart-box donut">
+            <div class="chart-box">
                 <span class="chart-title">Fraud Distribution</span>
                 <canvas id="fraudChart"></canvas>
             </div>
-
-            <div class="chart-box bar">
+            <div class="chart-box">
                 <span class="chart-title">Transaction Amounts</span>
                 <canvas id="amountChart"></canvas>
             </div>
@@ -109,7 +112,7 @@
 
 </div>
 
-<!-- JSON DATA (SAFE FOR JS + EDITOR) -->
+<!-- Chart Data -->
 <script id="chart-data" type="application/json">
 {
     "valids": {{ valids }},
@@ -119,17 +122,12 @@
 }
 </script>
 
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
     const data = JSON.parse(
         document.getElementById("chart-data").textContent
     );
 
-    // Donut chart
     new Chart(document.getElementById("fraudChart"), {
         type: "doughnut",
         data: {
@@ -138,72 +136,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: [data.valids, data.frauds],
                 backgroundColor: ["#22c55e", "#ef4444"]
             }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: "bottom",
-                    labels: { color: "#e5e7eb" }
-                }
-            }
         }
     });
 
-    // Bar chart
     if (data.amounts.length > 0) {
         new Chart(document.getElementById("amountChart"), {
             type: "bar",
             data: {
                 labels: data.amounts.map((_, i) => "T" + (i + 1)),
                 datasets: [{
-                    label: "Transaction Amount",
                     data: data.amounts,
-                    backgroundColor: "#fbbf24"
+                    backgroundColor: "#6366f1"
                 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: "#e5e7eb" } },
-                    y: { ticks: { color: "#e5e7eb" } }
-                }
             }
         });
     }
 
-});
-
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const data = JSON.parse(
-        document.getElementById("chart-data").textContent
-    );
-
     if (data.play_alert === true) {
-        const sound = document.getElementById("fraudSound");
-        if (sound) {
-            sound.currentTime = 0;
-            sound.volume = 0.7;
-            sound.play().catch(err => {
-                console.log("Audio blocked:", err);
-            });
-        }
+        document.getElementById("fraudSound")?.play().catch(() => {});
     }
-
 });
 </script>
-
 
 <audio id="fraudSound" preload="auto">
     <source src="/static/sounds/alert.mp3" type="audio/mpeg">
 </audio>
-
 
 </body>
 </html>

@@ -1,0 +1,358 @@
+/* =========================
+   GLOBAL RESET & BASE
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background: radial-gradient(circle at top, #151a3a 0%, #070914 55%, #04050a 100%);
+    color: #e5e7eb;
+    min-height: 100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #0b0f2a, #050713);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    margin-bottom: 32px;
+    text-align: center;
+    color: #8b93ff;
+    font-weight: 700;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #b7c0ff;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: linear-gradient(135deg, #3b4cca, #5a6cff);
+    color: #ffffff;
+}
+
+/* =========================
+   MAIN AREA
+========================= */
+.main {
+    flex: 1;
+    padding: 28px;
+    overflow-y: auto;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.topbar input {
+    background: #0d112b;
+    border: 1px solid rgba(120,130,255,0.15);
+    padding: 12px 16px;
+    border-radius: 14px;
+    color: #e5e7eb;
+    width: 280px;
+    outline: none;
+}
+
+.topbar input::placeholder {
+    color: #9aa2ff;
+}
+
+/* =========================
+   PANELS
+========================= */
+.panel {
+    background: radial-gradient(circle at top, #141a44, #0a0d23);
+    padding: 26px;
+    border-radius: 24px;
+    margin-bottom: 28px;
+    box-shadow:
+        inset 0 0 40px rgba(90,100,255,0.06),
+        0 30px 60px rgba(0,0,0,0.65);
+}
+
+.panel h3 {
+    margin-bottom: 18px;
+    color: #c9d0ff;
+    font-weight: 600;
+}
+
+/* =========================
+   FORMS (ANALYZE, INPUTS)
+========================= */
+.analyze-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+}
+
+.analyze-form input,
+.analyze-form select {
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(120,130,255,0.12);
+    background: #050713;
+    color: #e5e7eb;
+    outline: none;
+}
+
+.analyze-form input::placeholder {
+    color: #8f97ff;
+}
+
+.analyze-form button {
+    grid-column: span 2;
+    padding: 16px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #5b63ff, #7b83ff);
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analyze-form button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px rgba(90,100,255,0.4);
+}
+
+/* =========================
+   CARDS
+========================= */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.card {
+    background: radial-gradient(circle at top, #161d4d, #0b0f2a);
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow:
+        inset 0 0 35px rgba(90,100,255,0.05),
+        0 25px 55px rgba(0,0,0,0.6);
+}
+
+.card h3 {
+    color: #aeb6ff;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.card p {
+    font-size: 30px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* =========================
+   CHARTS
+========================= */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-box {
+    background: radial-gradient(circle at top, #111642, #070914);
+    padding: 20px;
+    border-radius: 20px;
+    height: 300px;
+    box-shadow: inset 0 0 25px rgba(90,100,255,0.05);
+}
+
+.chart-title {
+    display: block;
+    margin-bottom: 10px;
+    color: #aeb6ff;
+}
+
+/* =========================
+   LISTS / RECENT ACTIVITY
+========================= */
+ul {
+    list-style: none;
+}
+
+li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(120,130,255,0.08);
+    color: #e5e7eb;
+}
+
+.fraud {
+    color: #ff5c6c;
+    font-weight: 600;
+}
+
+.valid {
+    color: #22c55e;
+    font-weight: 600;
+}
+/* =========================
+   TRANSACTIONS TABLE
+========================= */
+.txn-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: radial-gradient(circle at top, #111642, #070914);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 25px rgba(90,100,255,0.05),
+        0 20px 45px rgba(0,0,0,0.6);
+}
+
+.txn-table th,
+.txn-table td {
+    padding: 14px 18px;
+    text-align: left;
+}
+
+.txn-table th {
+    background: linear-gradient(180deg, #141a44, #0a0d23);
+    color: #c9d0ff;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(120,130,255,0.15);
+}
+
+.txn-table td {
+    color: #e5e7eb;
+    font-size: 15px;
+    border-bottom: 1px solid rgba(120,130,255,0.08);
+}
+
+.txn-table tr:last-child td {
+    border-bottom: none;
+}
+
+.txn-table tr:hover {
+    background: rgba(90,100,255,0.05);
+}
+
+/* Status colors (already used elsewhere, kept consistent) */
+.txn-table .fraud {
+    color: #ff5c6c;
+    font-weight: 600;
+}
+
+.txn-table .valid {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+/* Empty state row */
+.txn-table td[colspan] {
+    text-align: center;
+    color: #9aa2ff;
+    padding: 24px;
+}
+/* =========================
+   FIX TRANSACTIONS PAGE ALIGNMENT
+========================= */
+
+/* Ensure sidebar + content stay side-by-side */
+body {
+    display: flex;
+}
+
+/* Prevent main content from dropping below sidebar */
+.main {
+    margin-top: 0;
+}
+
+/* Reduce top gap for tables/pages without topbar */
+.main .panel {
+    margin-top: 0;
+}
+/* =========================
+   FRAUD ALERTS PAGE
+========================= */
+
+.fraud-list {
+    list-style: none;
+    margin-top: 16px;
+    padding: 0;
+}
+
+.fraud-list li {
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background: radial-gradient(circle at top, #161d4d, #0b0f2a);
+    box-shadow:
+        inset 0 0 25px rgba(255, 92, 108, 0.08),
+        0 20px 45px rgba(0,0,0,0.6);
+    color: #ffb4bc;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Warning icon style */
+.fraud-list li::before {
+    content: "⚠";
+    font-size: 18px;
+}
+
+/* Empty state */
+.fraud-list li:only-child {
+    background: radial-gradient(circle at top, #111642, #070914);
+    color: #9aa2ff;
+    box-shadow: inset 0 0 20px rgba(90,100,255,0.05);
+}
+/* =========================
+   DASHBOARD – FORCE WHITE TEXT
+========================= */
+
+/* Panel headings like "Analyze Transaction" */
+.panel h3 {
+    color: #ffffff;
+}
+
+/* Analyze form placeholders: amount, frequency, merchant risk */
+.analyze-form input::placeholder {
+    color: #ffffff;
+    opacity: 0.85;
+}
+
+/* Analyze form select text (Location / Device already fine, but keep consistent) */
+.analyze-form select {
+    color: #ffffff;
+}
+
+/* Topbar search placeholder */
+.topbar input::placeholder {
+    color: #ffffff;
+    opacity: 0.7;
+}

@@ -1,14 +1,15 @@
 import joblib
 import numpy as np
 import sqlite3
-
-from flask import session
-from flask import Flask, render_template, request, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_login import (
+    LoginManager, UserMixin,
+    login_user, login_required, logout_user
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # =====================================================
-# LOAD ML MODELS (ONCE AT STARTUP)
+# LOAD ML MODELS
 # =====================================================
 model = joblib.load("model/fraudshield_xgboost.pkl")
 pca = joblib.load("model/pca_transform.pkl")
@@ -21,11 +22,13 @@ app = Flask(__name__)
 app.secret_key = "fraudshield-secret-key"
 
 # =====================================================
-# LOGIN MANAGER SETUP
+# LOGIN MANAGER
 # =====================================================
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+DB_NAME = "users.db"
 
 # =====================================================
 # USER CLASS
@@ -36,15 +39,48 @@ class User(UserMixin):
         self.username = username
 
 # =====================================================
-# LOAD USER FROM DATABASE
+# DATABASE INITIALIZATION
+# =====================================================
+def init_db():
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            amount REAL,
+            frequency INTEGER,
+            location_change INTEGER,
+            device_change INTEGER,
+            merchant_risk REAL,
+            result TEXT
+        )
+        """)
+
+        conn.commit()
+
+init_db()
+
+# =====================================================
+# LOAD USER
 # =====================================================
 @login_manager.user_loader
 def load_user(user_id):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, username FROM users WHERE id = ?", (user_id,))
-    user = cursor.fetchone()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, username FROM users WHERE id = ?",
+            (user_id,)
+        )
+        user = cursor.fetchone()
 
     if user:
         return User(user[0], user[1])
@@ -59,14 +95,13 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("users.db")
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, password FROM users WHERE username = ?",
-            (username,)
-        )
-        user = cursor.fetchone()
-        conn.close()
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, password FROM users WHERE username = ?",
+                (username,)
+            )
+            user = cursor.fetchone()
 
         if user and check_password_hash(user[1], password):
             login_user(User(user[0], username))
@@ -81,115 +116,110 @@ def login():
 def register():
     if request.method == "POST":
         username = request.form["username"]
-        password = generate_password_hash(request.form["password"])
+        password = request.form["password"]
 
-        conn = sqlite3.connect("users.db")
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, password)
-        )
-        conn.commit()
-        conn.close()
+        hashed_password = generate_password_hash(password)
+
+        try:
+            with sqlite3.connect(DB_NAME, timeout=10) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO users (username, password) VALUES (?, ?)",
+                    (username, hashed_password)
+                )
+                conn.commit()
+        except sqlite3.IntegrityError:
+            return "Username already exists"
 
         return redirect(url_for("login"))
 
     return render_template("register.html")
 
 # =====================================================
-# DASHBOARD ROUTE (PROTECTED + DATA)
+# DASHBOARD
 # =====================================================
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
 
-    # Total transactions
-    cursor.execute("SELECT COUNT(*) FROM transactions")
-    total_transactions = cursor.fetchone()[0] or 0
+        cursor.execute("SELECT COUNT(*) FROM transactions")
+        total_transactions = cursor.fetchone()[0] or 0
 
-    # Fraud count
-    cursor.execute("SELECT COUNT(*) FROM transactions WHERE result='Fraud'")
-    fraud_count = cursor.fetchone()[0] or 0
+        cursor.execute("SELECT COUNT(*) FROM transactions WHERE result='Fraud'")
+        fraud_count = cursor.fetchone()[0] or 0
 
-    # Valid count
-    cursor.execute("SELECT COUNT(*) FROM transactions WHERE result='Valid'")
-    valid_count = cursor.fetchone()[0] or 0
+        cursor.execute("SELECT COUNT(*) FROM transactions WHERE result='Valid'")
+        valid_count = cursor.fetchone()[0] or 0
 
-    # Recent transactions
-    cursor.execute("""
-        SELECT amount, result
-        FROM transactions
-        ORDER BY id DESC
-        LIMIT 5
-    """)
-    recent_transactions = cursor.fetchall() or []
+        cursor.execute("""
+            SELECT amount, result
+            FROM transactions
+            ORDER BY id DESC
+            LIMIT 5
+        """)
+        recent_transactions = cursor.fetchall() or []
 
-    # Amounts for bar chart
-    cursor.execute("""
-        SELECT amount
-        FROM transactions
-        ORDER BY id DESC
-        LIMIT 6
-    """)
-    amounts = [row[0] for row in cursor.fetchall()]
-    amounts.reverse()   # safer than [::-1]
+        cursor.execute("""
+            SELECT amount
+            FROM transactions
+            ORDER BY id DESC
+            LIMIT 6
+        """)
+        amounts = [row[0] for row in cursor.fetchall()]
+        amounts.reverse()
 
-    conn.close()
-
-    last_result = session.pop('last_result', None)
+    last_result = session.pop("last_result", None)
     play_alert = (last_result == "Fraud")
-    play_alert=play_alert
-
-
 
     return render_template(
-    "dashboard.html",
-    total=total_transactions,
-    frauds=fraud_count,
-    valids=valid_count,
-    recent=recent_transactions,
-    amounts=amounts,
-    play_alert=play_alert
-)
+        "dashboard.html",
+        total=total_transactions,
+        frauds=fraud_count,
+        valids=valid_count,
+        recent=recent_transactions,
+        amounts=amounts,
+        play_alert=play_alert
+    )
 
-
+# =====================================================
+# TRANSACTIONS PAGE
+# =====================================================
 @app.route("/transactions")
 @login_required
 def transactions():
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT amount, result
-        FROM transactions
-        ORDER BY id DESC
-    """)
-    records = cursor.fetchall()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT amount, result
+            FROM transactions
+            ORDER BY id DESC
+        """)
+        records = cursor.fetchall()
 
     return render_template("transactions.html", records=records)
 
+# =====================================================
+# FRAUD ALERTS
+# =====================================================
 @app.route("/fraud-alerts")
 @login_required
 def fraud_alerts():
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT amount
-        FROM transactions
-        WHERE result='Fraud'
-        ORDER BY id DESC
-    """)
-    frauds = cursor.fetchall()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT amount
+            FROM transactions
+            WHERE result='Fraud'
+            ORDER BY id DESC
+        """)
+        frauds = cursor.fetchall()
 
     return render_template("fraud_alerts.html", frauds=frauds)
 
 # =====================================================
-# ANALYZE TRANSACTION (ML PREDICTION)
+# ANALYZE TRANSACTION
 # =====================================================
 @app.route("/analyze", methods=["POST"])
 @login_required
@@ -200,7 +230,6 @@ def analyze():
     device = int(request.form["device_change"])
     merchant = float(request.form["merchant_risk"])
 
-    # IMPORTANT: Feature order must match training
     data = np.array([[amount, 12, frequency, location, device, merchant, 1]])
 
     scaled = scaler.transform(data)
@@ -208,23 +237,30 @@ def analyze():
     prediction = model.predict(reduced)[0]
 
     result = "Fraud" if prediction == 1 else "Valid"
-    session['last_result']=result
+    session["last_result"] = result
 
-    # Store transaction in DB
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO transactions
-        (amount, frequency, location_change, device_change, merchant_risk, result)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (amount, frequency, location, device, merchant, result))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO transactions
+            (amount, frequency, location_change, device_change, merchant_risk, result)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (amount, frequency, location, device, merchant, result))
+        conn.commit()
 
-    return redirect(url_for("dashboard"))
+    return render_template(
+    "result.html",
+    amount=amount,
+    frequency=frequency,
+    location=location,
+    device=device,
+    merchant=merchant,
+    result=result
+)
+
 
 # =====================================================
-# LOGOUT ROUTE
+# LOGOUT
 # =====================================================
 @app.route("/logout")
 @login_required
