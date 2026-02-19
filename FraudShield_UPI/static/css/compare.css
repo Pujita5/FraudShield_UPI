@@ -1,0 +1,150 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1220;
+    color: #e5e7eb;
+}
+
+.container {
+    width: 70%;
+    margin: 50px auto;
+    background: #0f172a;
+    padding: 30px;
+    border-radius: 12px;
+}
+
+h1 {
+    text-align: center;
+    color: #fbbf24;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form input, .form select {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    grid-column: span 2;
+    padding: 12px;
+    background: #fbbf24;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.results table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.results th, .results td {
+    border: 1px solid #334155;
+    padding: 10px;
+    text-align: center;
+}
+.charts {
+    margin-top: 30px;
+    display:block;
+}
+
+.cm-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    align-items:center;
+    margin-top: 15px;
+}
+
+.cm-grid img {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #020617;
+}
+
+.cm-tables {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.cm-card {
+    background: #020617;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #1f2933;
+}
+
+.cm-card h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #facc15;
+}
+
+.cm-card table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.cm-card th, .cm-card td {
+    border: 1px solid #1f2933;
+    padding: 8px;
+}
+
+.cm-card th {
+    background: #020617;
+    color: #e5e7eb;
+}
+#accuracyChart {
+    margin-top: 20px;
+    background: #020617;
+    border-radius: 12px;
+    padding: 10px;
+}
+.metrics-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.metrics-table th, .metrics-table td {
+    border: 1px solid #1f2933;
+    padding: 10px;
+}
+
+.metrics-table th {
+    background: #020617;
+    color: #facc15;
+}
+
+.metrics-table tr.highlight {
+    background: rgba(250, 204, 21, 0.1);
+}
+.hint {
+    color: #9ca3af;
+    text-align: center;
+    margin-bottom: 12px;
+}
+.conclusion {
+    margin-top: 30px;
+    padding: 15px;
+    background: rgba(59,130,246,0.08);
+    border-radius: 10px;
+}
+
+
+

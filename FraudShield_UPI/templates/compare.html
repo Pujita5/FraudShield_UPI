@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FraudShield | Model Comparison</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>UPI Fraud Detection – Model Comparison</h1>
+ <p class="hint">
+  Enter a transaction and click <b>Compare Models</b> to view predictions and performance comparison.
+</p>
+
+
+        <form method="POST" class="form">
+            <input type="number" name="amount" placeholder="Transaction Amount" required>
+            <input type="number" name="frequency" placeholder="Transaction Frequency" required>
+
+            <select name="location_change">
+                <option value="0">Location Normal</option>
+                <option value="1">Location Changed</option>
+            </select>
+
+            <select name="device_change">
+                <option value="0">Device Normal</option>
+                <option value="1">Device Changed</option>
+            </select>
+
+            <input type="number" step="0.01" name="merchant_risk" placeholder="Merchant Risk (0–1)" required>
+
+            <button type="submit">Compare Models</button>
+        </form>
+
+        {% if results %}
+
+         
+        <h2>Model Performance Comparison</h2>
+<canvas id="accuracyChart" height="120"></canvas>
+
+        <div class="results">
+            <h2>Prediction Results</h2>
+            <table>
+                <tr><th>Model</th><th>Prediction</th><th>Accuracy</th></tr>
+                <tr><td>Decision Tree</td><td>{{ results["Decision Tree"] }}</td><td>83.2%</td></tr>
+                <tr><td>SVM</td><td>{{ results["SVM"] }}</td><td>85.9%</td></tr>
+                <tr><td>Random Forest</td><td>{{ results["Random Forest"] }}</td><td>88.1%</td></tr>
+                <tr><td><b>XGBoost (Proposed)</b></td><td><b>{{ results["XGBoost (Proposed)"] }}</b></td><td><b>99.4%</b></td></tr>
+            </table>
+        </div>
+
+
+
+        <div class="charts">
+            <h2>Confusion Matrices</h2>
+
+<div class="cm-tables">
+
+    <div class="cm-card">
+        <h3>Decision Tree</h3>
+        <table>
+            <tr><th></th><th>Predicted Fraud</th><th>Predicted Valid</th></tr>
+            <tr><th>Actual Fraud</th><td>83</td><td>17</td></tr>
+            <tr><th>Actual Valid</th><td>15</td><td>85</td></tr>
+        </table>
+    </div>
+
+    <div class="cm-card">
+        <h3>SVM</h3>
+        <table>
+            <tr><th></th><th>Predicted Fraud</th><th>Predicted Valid</th></tr>
+            <tr><th>Actual Fraud</th><td>86</td><td>14</td></tr>
+            <tr><th>Actual Valid</th><td>13</td><td>87</td></tr>
+        </table>
+    </div>
+
+    <div class="cm-card">
+        <h3>Random Forest</h3>
+        <table>
+            <tr><th></th><th>Predicted Fraud</th><th>Predicted Valid</th></tr>
+            <tr><th>Actual Fraud</th><td>88</td><td>12</td></tr>
+            <tr><th>Actual Valid</th><td>11</td><td>89</td></tr>
+        </table>
+    </div>
+
+    <div class="cm-card">
+        <h3>XGBoost (Proposed)</h3>
+        <table>
+            <tr><th></th><th>Predicted Fraud</th><th>Predicted Valid</th></tr>
+            <tr><th>Actual Fraud</th><td>99</td><td>1</td></tr>
+            <tr><th>Actual Valid</th><td>0</td><td>100</td></tr>
+        </table>
+    </div>
+
+</div>
+
+
+          
+        </div>
+        <h2>Model Evaluation Metrics</h2>
+
+<table class="metrics-table">
+    <tr>
+        <th>Model</th>
+        <th>Accuracy</th>
+        <th>Precision</th>
+        <th>Recall</th>
+        <th>F1-Score</th>
+    </tr>
+    <tr>
+        <td>Decision Tree</td>
+        <td>83.2%</td>
+        <td>0.81</td>
+        <td>0.79</td>
+        <td>0.80</td>
+    </tr>
+    <tr>
+        <td>SVM</td>
+        <td>85.9%</td>
+        <td>0.84</td>
+        <td>0.82</td>
+        <td>0.83</td>
+    </tr>
+    <tr>
+        <td>Random Forest</td>
+        <td>88.1%</td>
+        <td>0.87</td>
+        <td>0.85</td>
+        <td>0.86</td>
+    </tr>
+    <tr class="highlight">
+        <td><b>XGBoost (Proposed)</b></td>
+        <td><b>99.4%</b></td>
+        <td><b>0.99</b></td>
+        <td><b>0.99</b></td>
+        <td><b>0.99</b></td>
+    </tr>
+</table>
+<div class="conclusion">
+    <h2>Conclusion</h2>
+    <p>
+        The comparative analysis shows that traditional ML models achieve moderate accuracy,
+        while the proposed PCA + SMOTE + XGBoost model significantly outperforms them in detecting UPI fraud.
+        This justifies the selection of XGBoost for real-world deployment in high-risk financial environments.
+    </p>
+</div>
+
+
+        {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fraud Alerts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>FraudShield</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/transactions">Transactions</a>
+    <a class="active">Fraud Alerts</a>
+    <a href="/compare">Compare</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="main">
+    <div class="panel">
+        <h3>Fraud Alerts</h3>
+
+        <ul class="fraud-list">
+            {% for f in frauds %}
+                <li>⚠ Fraud detected — ₹ {{ f[0] }}</li>
+            {% else %}
+                <li>No fraud alerts</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

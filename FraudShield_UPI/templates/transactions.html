@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>FraudShield</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a class="active">Transactions</a>
+    <a href="/fraud-alerts">Fraud Alerts</a>
+    <a href="/compare">Compare</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="main">
+    <div class="panel">
+        <h3>All Transactions</h3>
+
+        <table class="txn-table">
+            <tr>
+                <th>Amount</th>
+                <th>Status</th>
+            </tr>
+
+            {% for r in records %}
+            <tr>
+                <td>₹ {{ r[0] }}</td>
+                <td class="{{ 'fraud' if r[1]=='Fraud' else 'valid' }}">
+                    {{ r[1] }}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2">No transactions found</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

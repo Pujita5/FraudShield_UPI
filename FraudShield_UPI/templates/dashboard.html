@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FraudShield UPI | Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>FraudShield</h2>
+    <a href="/dashboard" class="active">Dashboard</a>
+    <a href="/transactions">Transactions</a>
+    <a href="/fraud-alerts">Fraud Alerts</a>
+    <a href="/compare">Compare</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <input type="text" placeholder="Search transactions...">
+        <div class="user-badge">👤 User</div>
+    </div>
+
+    <!-- Analyze Transaction -->
+    <div class="panel">
+        <h3>Analyze Transaction</h3>
+        <form method="POST" action="/analyze" class="analyze-form">
+            <input type="number" name="amount" placeholder="Transaction Amount" required>
+            <input type="number" name="frequency" placeholder="Transaction Frequency" required>
+
+            <select name="location_change">
+                <option value="0">Location Normal</option>
+                <option value="1">Location Changed</option>
+            </select>
+
+            <select name="device_change">
+                <option value="0">Device Normal</option>
+                <option value="1">Device Changed</option>
+            </select>
+
+            <input type="number" step="0.01" name="merchant_risk" placeholder="Merchant Risk (0–1)" required>
+
+            <button type="submit">Analyze Transaction</button>
+        </form>
+    </div>
+
+    <!-- Stats -->
+    <div class="cards">
+        <div class="card">
+            <h3>Total Transactions</h3>
+            <p>{{ total }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Fraud Alerts</h3>
+            <p>{{ frauds }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Security Score</h3>
+            <p>
+                {% if total > 0 %}
+                    {{ 100 - (frauds * 100 // total) }}%
+                {% else %}
+                    100%
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="panel">
+        <h3>Fraud Analytics</h3>
+        <div class="charts-grid">
+            <div class="chart-box">
+                <span class="chart-title">Fraud Distribution</span>
+                <canvas id="fraudChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <span class="chart-title">Transaction Amounts</span>
+                <canvas id="amountChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="panel">
+        <h3>Recent Transactions</h3>
+        <ul>
+            {% for t in recent %}
+                <li>
+                    ₹ {{ t[0] }} —
+                    <span class="{{ 'fraud' if t[1]=='Fraud' else 'valid' }}">
+                        {{ t[1] }}
+                    </span>
+                </li>
+            {% else %}
+                <li>No transactions yet</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+<!-- Chart Data -->
+<script id="chart-data" type="application/json">
+{
+    "valids": {{ valids }},
+    "frauds": {{ frauds }},
+    "amounts": {{ amounts | tojson }},
+    "play_alert": {{ play_alert | lower }}
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const data = JSON.parse(
+        document.getElementById("chart-data").textContent
+    );
+
+    new Chart(document.getElementById("fraudChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Valid", "Fraud"],
+            datasets: [{
+                data: [data.valids, data.frauds],
+                backgroundColor: ["#22c55e", "#ef4444"]
+            }]
+        }
+    });
+
+    if (data.amounts.length > 0) {
+        new Chart(document.getElementById("amountChart"), {
+            type: "bar",
+            data: {
+                labels: data.amounts.map((_, i) => "T" + (i + 1)),
+                datasets: [{
+                    data: data.amounts,
+                    backgroundColor: "#6366f1"
+                }]
+            }
+        });
+    }
+
+    if (data.play_alert === true) {
+        document.getElementById("fraudSound")?.play().catch(() => {});
+    }
+});
+</script>
+
+<audio id="fraudSound" preload="auto">
+    <source src="/static/sounds/alert.mp3" type="audio/mpeg">
+</audio>
+
+</body>
+</html>

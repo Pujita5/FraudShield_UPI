@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FraudShield UPI | Register</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Inter", system-ui, sans-serif;
+
+            background-image: url("{{ url_for('static', filename='images/upi-shield-bg.png') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8%;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 8, 18, 0.78);
+            z-index: 0;
+        }
+
+        .register-box {
+            position: relative;
+            z-index: 1;
+
+            width: 420px;
+            padding: 38px;
+            border-radius: 26px;
+
+            background: linear-gradient(
+                180deg,
+                rgba(24, 26, 55, 0.96),
+                rgba(14, 16, 36, 0.96)
+            );
+
+            box-shadow: 0 45px 120px rgba(0,0,0,0.65);
+            color: #e6e8f2;
+        }
+
+        .register-box h2 {
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .register-box p {
+            color: #9aa0c3;
+            margin-bottom: 26px;
+        }
+
+        .register-box input {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+
+            border-radius: 14px;
+            border: none;
+            outline: none;
+
+            background: #0f1126;
+            color: #e6e8f2;
+        }
+
+        .register-box input::placeholder {
+            color: #8b91b8;
+        }
+
+        .register-box button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 12px;
+
+            border: none;
+            border-radius: 18px;
+
+            background: linear-gradient(135deg, #5b5fe8, #7a5cff);
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .register-box button:hover {
+            filter: brightness(1.15);
+        }
+
+        .register-box .link {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #9aa0c3;
+        }
+
+        .register-box a {
+            color: #7a5cff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="register-box">
+        <h2>FraudShield UPI</h2>
+        <p>Create your secure account</p>
+
+        <!-- 🔒 BACKEND-SAFE REGISTER FORM -->
+        <form method="POST">
+            <input name="username" placeholder="Username" required>
+            <input name="password" type="password" placeholder="Password" required>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <div class="link">
+            Already have an account?
+            <a href="/login">Login</a>
+        </div>
+    </div>
+
+</body>
+</html>
